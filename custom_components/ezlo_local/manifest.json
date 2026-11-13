@@ -1,10 +1,11 @@
 {
   "domain": "ezlo_local",
   "name": "Ezlo Local",
-  "codeowners": [],
+  "codeowners": ["@matteovigni"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/bostrt/bali-gateway-kit",
+  "documentation": "https://github.com/matteovigni/homeassistant-ezlo-local",
+  "issue_tracker": "https://github.com/matteovigni/homeassistant-ezlo-local/issues",
   "iot_class": "local_push",
   "requirements": ["websockets>=12.0"],
   "version": "1.0.0",
