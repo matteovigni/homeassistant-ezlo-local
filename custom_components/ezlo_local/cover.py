@@ -133,7 +133,7 @@ class EzloCover(CoverEntity):
     async def async_stop_cover(self, **kwargs: Any) -> None:
         item = self._hub.get_item(self._device_id, "dimmer_stop")
         if item:
-            await self._hub.set_item_value(item["_id"], True)
+            await self._hub.set_item_value(item["_id"], 1)
 
     async def _set_position(self, position: int) -> None:
         item = self._hub.get_item(self._device_id, "dimmer")
