@@ -1,0 +1,24 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Ezlo Hub",
+        "description": "Enter the IP address of your Ezlo hub. It will also be discovered automatically via mDNS.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "Ezlo Hub Discovered",
+        "description": "Found **{name}** at `{host}` (serial: {serial}). Add this hub?"
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the hub. Check the IP address and ensure the hub is on the network."
+    },
+    "abort": {
+      "already_configured": "This hub is already configured."
+    }
+  }
+}

@@ -1,0 +1,15 @@
+zwave_include:
+  name: Z-Wave Include
+  description: Put the Ezlo hub into Z-Wave inclusion mode to add a new device. The device must also be put into pairing mode.
+
+zwave_stop_include:
+  name: Z-Wave Stop Include
+  description: Stop Z-Wave inclusion mode.
+
+zwave_exclude:
+  name: Z-Wave Exclude
+  description: Put the Ezlo hub into Z-Wave exclusion mode to remove a device from the network. The device must also be triggered.
+
+zwave_stop_exclude:
+  name: Z-Wave Stop Exclude
+  description: Stop Z-Wave exclusion mode.
