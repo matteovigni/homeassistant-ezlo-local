@@ -27,11 +27,14 @@ These are set via the Ezlo cloud relay API (see setup notes below).
 ## Installation
 
 ### HACS (recommended)
-1. Open HACS in Home Assistant
-2. Go to **Integrations** > **Custom repositories**
-3. Add this repository URL and select "Integration"
-4. Install "Ezlo Local"
-5. Restart Home Assistant
+1. Open **HACS** from the Home Assistant sidebar
+2. Click the **3-dot menu** (top right corner)
+3. Select **Custom repositories**
+4. In the **Repository** field, paste: `https://github.com/matteovigni/homeassistant-ezlo-local`
+5. In the **Type** dropdown, select **Integration**
+6. Click **Add**
+7. The integration will appear in the list -- click it and hit **Download**
+8. Restart Home Assistant
 
 ### Manual
 1. Copy the `custom_components/ezlo_local` folder to your HA `config/custom_components/` directory
