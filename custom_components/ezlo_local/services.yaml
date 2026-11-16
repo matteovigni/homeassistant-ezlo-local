@@ -16,7 +16,7 @@ zwave_stop_exclude:
 
 force_remove_device:
   name: Force Remove Device
-  description: Force-remove a device from the hub by its Ezlo device ID or name.
+  description: Force-remove a device from the hub by its Ezlo device ID, name, or from an input_text helper.
   fields:
     device_id:
       name: Device ID
@@ -32,6 +32,14 @@ force_remove_device:
       example: "Balcony"
       selector:
         text:
+    input_text_entity:
+      name: Input Text Entity
+      description: An input_text helper entity to read the device name from. Use this for dashboard buttons.
+      required: false
+      example: "input_text.ezlo_remove_device_name"
+      selector:
+        entity:
+          domain: input_text:
 
 refresh_devices:
   name: Refresh Devices

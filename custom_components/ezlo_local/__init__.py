@@ -235,8 +235,15 @@ def _register_services(hass: HomeAssistant) -> None:
         device_id = call.data.get("device_id")
         device_name = call.data.get("device_name")
 
+        # Read from an input_text helper entity if provided
+        entity_id = call.data.get("input_text_entity")
+        if entity_id and not device_id and not device_name:
+            state = hass.states.get(entity_id)
+            if state and state.state not in ("", "unknown", "unavailable"):
+                device_name = state.state
+
         if not device_id and not device_name:
-            raise ValueError("Provide either device_id or device_name")
+            raise ValueError("Provide device_id, device_name, or input_text_entity")
 
         if not device_id and device_name:
             # Look up by name (case-insensitive)
@@ -342,6 +349,7 @@ def _register_services(hass: HomeAssistant) -> None:
         schema=vol.Schema({
             vol.Optional("device_id"): str,
             vol.Optional("device_name"): str,
+            vol.Optional("input_text_entity"): str,
         }),
     )
     hass.services.async_register(DOMAIN, "refresh_devices", handle_refresh_devices)
