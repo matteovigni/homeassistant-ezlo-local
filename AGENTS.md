@@ -43,6 +43,26 @@ No build step required. To test:
 - HACS requires a published GitHub release (not just a tag)
 - Tag format: `v1.0.0`
 
+## Hub Management
+
+- Z-Wave operations (include/exclude) fire `ezlo_local_zwave_operation` events on the HA bus
+- Persistent notifications are created/updated during operations with ID `ezlo_local_zwave_op`
+- Device add/remove broadcasts trigger automatic integration reload
+- `__init__.py` tracks Z-Wave state (`idle`/`including`/`excluding`) in `hass.data[DOMAIN][entry_id]["zwave_state"]`
+- The Z-Wave Status sensor exposes full device list with details as `extra_state_attributes`
+- Cover entities expose `ezlo_id` attribute for use with `force_remove_device` service
+
+## Services
+
+| Service | Parameters | Description |
+|---|---|---|
+| `zwave_include` | none | Start Z-Wave inclusion |
+| `zwave_stop_include` | none | Stop inclusion |
+| `zwave_exclude` | none | Start Z-Wave exclusion |
+| `zwave_stop_exclude` | none | Stop exclusion |
+| `force_remove_device` | `device_id` (string) | Force-remove device by Ezlo ID |
+| `refresh_devices` | none | Re-fetch devices and reload |
+
 ## Adding support for new device types
 
 1. Add the category constant to `const.py`

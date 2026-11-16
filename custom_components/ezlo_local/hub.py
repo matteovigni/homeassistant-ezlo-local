@@ -14,6 +14,7 @@ from .const import (
     BROADCAST_ITEM_UPDATED,
     BROADCAST_PLUGIN_UI,
     DEFAULT_PORT,
+    METHOD_DEVICE_FORCE_REMOVE,
     METHOD_DEVICES_LIST,
     METHOD_HUB_INFO,
     METHOD_ITEMS_LIST,
@@ -64,7 +65,6 @@ class EzloHub:
         """Connect to the hub, trying plain ws:// first then wss://."""
         connect_kwargs = {"ping_interval": 30, "ping_timeout": 10, "close_timeout": 5}
 
-        # Try plain WebSocket first (hub with insecure access enabled)
         for scheme in ("ws", "wss"):
             uri = f"{scheme}://{self.host}:{self.port}"
             kwargs = dict(connect_kwargs)
@@ -177,6 +177,13 @@ class EzloHub:
             if item_id and item_id in self.items:
                 self.items[item_id].update(result)
 
+        if subclass == BROADCAST_DEVICE_ADDED:
+            _LOGGER.info("Device added: %s", result.get("_id"))
+        elif subclass == BROADCAST_DEVICE_REMOVED:
+            dev_id = result.get("_id")
+            _LOGGER.info("Device removed: %s", dev_id)
+            self.devices.pop(dev_id, None)
+
         for listener in self._listeners:
             try:
                 listener(subclass, result)
@@ -228,3 +235,7 @@ class EzloHub:
     async def zwave_stop_exclude(self) -> dict:
         """Stop Z-Wave exclusion mode."""
         return await self.send(METHOD_PLUGIN_RUN, {"script": SCRIPT_ZWAVE_STOP_EXCLUDE})
+
+    async def device_force_remove(self, device_id: str) -> dict:
+        """Force-remove a device from the hub."""
+        return await self.send(METHOD_DEVICE_FORCE_REMOVE, {"_id": device_id})

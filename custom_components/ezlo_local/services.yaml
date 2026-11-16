@@ -1,6 +1,6 @@
 zwave_include:
   name: Z-Wave Include
-  description: Put the Ezlo hub into Z-Wave inclusion mode to add a new device. The device must also be put into pairing mode.
+  description: Start Z-Wave inclusion mode to add a new device. Put the device into pairing mode after calling this service.
 
 zwave_stop_include:
   name: Z-Wave Stop Include
@@ -8,8 +8,24 @@ zwave_stop_include:
 
 zwave_exclude:
   name: Z-Wave Exclude
-  description: Put the Ezlo hub into Z-Wave exclusion mode to remove a device from the network. The device must also be triggered.
+  description: Start Z-Wave exclusion mode to remove a device. Trigger the device after calling this service.
 
 zwave_stop_exclude:
   name: Z-Wave Stop Exclude
   description: Stop Z-Wave exclusion mode.
+
+force_remove_device:
+  name: Force Remove Device
+  description: Force-remove a device from the hub by its Ezlo device ID.
+  fields:
+    device_id:
+      name: Device ID
+      description: The Ezlo device ID to remove (from device info attributes).
+      required: true
+      example: "6af78e54376468159702f8e9"
+      selector:
+        text:
+
+refresh_devices:
+  name: Refresh Devices
+  description: Refresh the device list from the hub and reload the integration.

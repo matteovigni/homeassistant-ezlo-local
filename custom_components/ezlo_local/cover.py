@@ -64,6 +64,8 @@ class EzloCover(CoverEntity):
             via_device=(DOMAIN, hub.serial),
         )
 
+        self._device = device
+        self._info = info
         self._position: int | None = None
         self._state: str | None = None
         self._update_from_items()
@@ -100,6 +102,16 @@ class EzloCover(CoverEntity):
         elif name == "shutter_state":
             self._state = result.get("value")
             self.async_write_ha_state()
+
+    @property
+    def extra_state_attributes(self) -> dict:
+        return {
+            "ezlo_id": self._device_id,
+            "zwave_node": self._info.get("zwave.node"),
+            "signal_quality": self._info.get("signal_quality"),
+            "security": self._device.get("security"),
+            "protocol": self._info.get("protocol"),
+        }
 
     @property
     def current_cover_position(self) -> int | None:
