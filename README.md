@@ -124,10 +124,13 @@ views:
               service: ezlo_local.refresh_devices
 
       # Device list with details
+      # NOTE: Replace YOUR_ENTITY_ID below with your actual entity ID.
+      # Find it in Developer Tools > States, search for "zwave_status".
+      # It will be something like: sensor.ezlo_90045767_z_wave_status
       - type: markdown
         title: Connected Devices
         content: >
-          {% set status = state_attr('sensor.ezlo_local_z_wave_status', 'devices') %}
+          {% set status = state_attr('sensor.YOUR_ENTITY_ID', 'devices') %}
           {% if status %}
           | Name | Node | Signal | Battery | Model |
           |------|------|--------|---------|-------|
@@ -135,7 +138,7 @@ views:
           | {{ dev.name }} | {{ dev.zwave_node }} | {{ dev.signal }} | {{ dev.battery }}% | {{ dev.model }} |
           {% endfor %}
           {% else %}
-          No devices found.
+          No devices found. Check the entity ID above matches yours.
           {% endif %}
 ```
 
