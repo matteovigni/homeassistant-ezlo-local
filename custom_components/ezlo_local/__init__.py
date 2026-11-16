@@ -230,9 +230,31 @@ def _register_services(hass: HomeAssistant) -> None:
         _LOGGER.info("Z-Wave exclusion stopped on %s", hub.serial)
 
     async def handle_force_remove(call: ServiceCall) -> None:
-        """Force-remove a device from the hub."""
+        """Force-remove a device from the hub by ID or name."""
         hub = await _get_hub(call)
-        device_id = call.data["device_id"]
+        device_id = call.data.get("device_id")
+        device_name = call.data.get("device_name")
+
+        if not device_id and not device_name:
+            raise ValueError("Provide either device_id or device_name")
+
+        if not device_id and device_name:
+            # Look up by name (case-insensitive)
+            name_lower = device_name.lower()
+            for did, dev in hub.devices.items():
+                if dev.get("name", "").lower() == name_lower:
+                    device_id = did
+                    break
+            if not device_id:
+                persistent_notification.async_create(
+                    hass,
+                    f"No device found with name **{device_name}**.\n\n"
+                    f"Call `ezlo_local.list_devices` to see all devices.",
+                    title="Ezlo: Device Not Found",
+                    notification_id=f"{DOMAIN}_device_removed",
+                )
+                return
+
         try:
             await hub.device_force_remove(device_id)
             persistent_notification.async_create(
@@ -268,12 +290,59 @@ def _register_services(hass: HomeAssistant) -> None:
                 hass.config_entries.async_reload(eid)
             )
 
+    async def handle_list_devices(call: ServiceCall) -> None:
+        """List all devices on the hub as a persistent notification."""
+        hub = await _get_hub(call)
+        await hub.refresh_devices()
+
+        if not hub.devices:
+            persistent_notification.async_create(
+                hass,
+                "No devices paired to the hub.",
+                title="Ezlo: Device List",
+                notification_id=f"{DOMAIN}_device_list",
+            )
+            return
+
+        lines = [
+            "| # | Name | Ezlo ID | Node | Model | Signal | Battery |",
+            "|---|------|---------|------|-------|--------|---------|",
+        ]
+        for idx, (dev_id, dev) in enumerate(hub.devices.items(), 1):
+            info = dev.get("info", {})
+            battery = hub.get_item(dev_id, "battery")
+            bat_val = f"{battery.get('value')}%" if battery else "n/a"
+            lines.append(
+                f"| {idx} | {dev.get('name', '?')} | `{dev_id}` "
+                f"| {info.get('zwave.node', '?')} "
+                f"| {info.get('model', '?')} "
+                f"| {info.get('signal_quality', '?')} "
+                f"| {bat_val} |"
+            )
+
+        lines.append("")
+        lines.append(
+            "To force-remove a device, call `ezlo_local.force_remove_device` "
+            "with the **Ezlo ID** from the table above."
+        )
+
+        persistent_notification.async_create(
+            hass,
+            "\n".join(lines),
+            title=f"Ezlo: {len(hub.devices)} Device(s)",
+            notification_id=f"{DOMAIN}_device_list",
+        )
+
     hass.services.async_register(DOMAIN, "zwave_include", handle_zwave_include)
     hass.services.async_register(DOMAIN, "zwave_stop_include", handle_zwave_stop_include)
     hass.services.async_register(DOMAIN, "zwave_exclude", handle_zwave_exclude)
     hass.services.async_register(DOMAIN, "zwave_stop_exclude", handle_zwave_stop_exclude)
     hass.services.async_register(
         DOMAIN, "force_remove_device", handle_force_remove,
-        schema=vol.Schema({vol.Required("device_id"): str}),
+        schema=vol.Schema({
+            vol.Optional("device_id"): str,
+            vol.Optional("device_name"): str,
+        }),
     )
     hass.services.async_register(DOMAIN, "refresh_devices", handle_refresh_devices)
+    hass.services.async_register(DOMAIN, "list_devices", handle_list_devices)

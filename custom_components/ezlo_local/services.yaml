@@ -16,16 +16,27 @@ zwave_stop_exclude:
 
 force_remove_device:
   name: Force Remove Device
-  description: Force-remove a device from the hub by its Ezlo device ID.
+  description: Force-remove a device from the hub by its Ezlo device ID or name.
   fields:
     device_id:
       name: Device ID
-      description: The Ezlo device ID to remove (from device info attributes).
-      required: true
+      description: The Ezlo device ID (from entity attributes or list_devices).
+      required: false
       example: "6af78e54376468159702f8e9"
+      selector:
+        text:
+    device_name:
+      name: Device Name
+      description: The device name (case-insensitive). Used if device_id is not provided.
+      required: false
+      example: "Balcony"
       selector:
         text:
 
 refresh_devices:
   name: Refresh Devices
   description: Refresh the device list from the hub and reload the integration.
+
+list_devices:
+  name: List Devices
+  description: Show all devices on the hub as a persistent notification with their details and IDs.
