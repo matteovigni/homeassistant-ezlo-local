@@ -28,6 +28,9 @@ async def async_setup_entry(
     for dev_id, device in hub.devices.items():
         if device.get("category") not in SWITCH_CATEGORIES:
             continue
+        # Skip controllers (e.g. 2gig secondary Z-Wave controllers)
+        if device.get("subcategory") == "controller":
+            continue
         # Use 'switch' item if available, fall back to 'basic'
         item = hub.get_item(dev_id, "switch") or hub.get_item(dev_id, "basic")
         if item and item.get("hasSetter"):
