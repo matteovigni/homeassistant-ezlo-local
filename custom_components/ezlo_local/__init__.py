@@ -23,7 +23,7 @@ from .hub import EzloHub
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS = ["cover", "sensor"]
+PLATFORMS = ["cover", "sensor", "lock", "climate", "switch"]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

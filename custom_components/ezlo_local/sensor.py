@@ -8,7 +8,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import PERCENTAGE
+from homeassistant.const import PERCENTAGE, UnitOfTemperature
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -17,9 +17,7 @@ from .const import (
     BROADCAST_ITEM_UPDATED,
     BROADCAST_PLUGIN_UI,
     DOMAIN,
-    ZWAVE_STATE_EXCLUDING,
     ZWAVE_STATE_IDLE,
-    ZWAVE_STATE_INCLUDING,
 )
 from .hub import EzloHub
 
@@ -34,11 +32,21 @@ async def async_setup_entry(
     hub: EzloHub = entry_data["hub"]
     entities: list[SensorEntity] = []
 
-    # Battery sensors for each device
     for dev_id, device in hub.devices.items():
+        # Battery sensors
         battery_item = hub.get_item(dev_id, "battery")
         if battery_item:
             entities.append(EzloBatterySensor(hub, device, battery_item))
+
+        # Temperature sensors
+        temp_item = hub.get_item(dev_id, "temp")
+        if temp_item:
+            entities.append(EzloTemperatureSensor(hub, device, temp_item))
+
+        # Humidity sensors
+        humidity_item = hub.get_item(dev_id, "humidity")
+        if humidity_item:
+            entities.append(EzloHumiditySensor(hub, device, humidity_item))
 
     # Hub status sensor
     entities.append(EzloHubStatusSensor(hub, entry, entry_data))
@@ -46,13 +54,11 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class EzloBatterySensor(SensorEntity):
-    """Battery level sensor for an Ezlo device."""
+class _EzloItemSensor(SensorEntity):
+    """Base class for item-backed sensors."""
 
     _attr_has_entity_name = True
-    _attr_device_class = SensorDeviceClass.BATTERY
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_native_unit_of_measurement = PERCENTAGE
 
     def __init__(self, hub: EzloHub, device: dict, item: dict) -> None:
         self._hub = hub
@@ -61,7 +67,6 @@ class EzloBatterySensor(SensorEntity):
 
         info = device.get("info", {})
         self._attr_unique_id = f"{hub.serial}_{self._item_id}"
-        self._attr_name = "Battery"
         self._attr_native_value = item.get("value")
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, self._device_id)},
@@ -86,6 +91,39 @@ class EzloBatterySensor(SensorEntity):
             return
         self._attr_native_value = result.get("value")
         self.async_write_ha_state()
+
+
+class EzloBatterySensor(_EzloItemSensor):
+    """Battery level sensor."""
+
+    _attr_device_class = SensorDeviceClass.BATTERY
+    _attr_native_unit_of_measurement = PERCENTAGE
+
+    def __init__(self, hub: EzloHub, device: dict, item: dict) -> None:
+        super().__init__(hub, device, item)
+        self._attr_name = "Battery"
+
+
+class EzloTemperatureSensor(_EzloItemSensor):
+    """Temperature sensor."""
+
+    _attr_device_class = SensorDeviceClass.TEMPERATURE
+    _attr_native_unit_of_measurement = UnitOfTemperature.FAHRENHEIT
+
+    def __init__(self, hub: EzloHub, device: dict, item: dict) -> None:
+        super().__init__(hub, device, item)
+        self._attr_name = "Temperature"
+
+
+class EzloHumiditySensor(_EzloItemSensor):
+    """Humidity sensor."""
+
+    _attr_device_class = SensorDeviceClass.HUMIDITY
+    _attr_native_unit_of_measurement = PERCENTAGE
+
+    def __init__(self, hub: EzloHub, device: dict, item: dict) -> None:
+        super().__init__(hub, device, item)
+        self._attr_name = "Humidity"
 
 
 class EzloHubStatusSensor(SensorEntity):
