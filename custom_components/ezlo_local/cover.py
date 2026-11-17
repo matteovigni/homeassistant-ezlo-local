@@ -24,7 +24,7 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     """Set up cover entities from a config entry."""
-    hub: EzloHub = hass.data[DOMAIN][entry.entry_id]
+    hub: EzloHub = hass.data[DOMAIN][entry.entry_id]["hub"]
     entities = []
 
     for dev_id, device in hub.devices.items():
